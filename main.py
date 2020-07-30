@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import pathlib
 import pprint
 from copy import copy
 from typing import List
@@ -147,14 +148,14 @@ async def generate_reconnection_closure(current_loop, cli, hostname):
     return try_connect
 
 
-async def do_stuff(clis: List[aioesphomeapi.APIClient]):
+async def do_stuff(clis: List[aioesphomeapi.APIClient], sextet_file_path: str):
     lights = [Lights(cli) for cli in clis]
     for light in lights:
         await light.init_lightmap()
         await light.update_light("main_light", False)
 
     async with AIOFile(
-        os.path.expanduser("~/.stepmania-5.0/Save/StepMania-Lights-SextetStream.out"),
+        pathlib.Path(sextet_file_path).expanduser(),
         mode="rb",
     ) as light_pipe:
         current_status = bytearray()
@@ -196,13 +197,13 @@ async def main(conf):
         pprint.pprint(list_services)
         clis.append(cli)
 
-    await asyncio.gather(do_stuff(clis))
+    await asyncio.gather(do_stuff(clis, conf["stepmania_sextet_file"]))
 
     print("All done")
 
 
 if __name__ == "__main__":
-    with open(os.path.expanduser("~/projects/itglights/config.yml")) as conf_fp:
+    with pathlib.Path(__file__).parent.joinpath("config.yml").open() as conf_fp:
         conf_data = yaml.safe_load(conf_fp)
 
     loop = asyncio.get_event_loop()
