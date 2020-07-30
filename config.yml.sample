@@ -1,0 +1,4 @@
+stepmania_sextet_file: "~/.stepmania-5.0/Save/StepMania-Lights-SextetStream.out"
+lights:
+  - hostname:
+    password:
